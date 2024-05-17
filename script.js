@@ -1,4 +1,5 @@
-// Inicializa a quantidade de pizzas como 1
+let cart = [];
+let pizzaKey = 0;
 let pizzaQt = 1;
 
 // Função para selecionar um único elemento no DOM
@@ -11,10 +12,8 @@ const cs = (el) => document.querySelectorAll(el);
 pizzaJson.map((item, index) => {
    // Clona o modelo de item de pizza do DOM
    let pizzaItem = c('.models .pizza-item').cloneNode(true);
-   
    // Configura um atributo data-key para identificar cada pizza
    pizzaItem.setAttribute('data-key', index);
-   
    // Atualiza a imagem, nome, descrição e preço da pizza no item clonado
    pizzaItem.querySelector('.pizza-item--img img').src = item.img;
    pizzaItem.querySelector('.pizza-item--name').innerHTML = item.name;
@@ -24,9 +23,10 @@ pizzaJson.map((item, index) => {
    // Adiciona um ouvinte de eventos de clique para cada item de pizza
    pizzaItem.querySelector('a').addEventListener('click', (e) => {
       e.preventDefault();
-      
       // Obtém a chave da pizza clicada
       let key = e.target.closest('.pizza-item').getAttribute('data-key');
+      pizzaQt = 1;
+      pizzaKey = key;
       
       // Reseta a quantidade de pizzas para 1
       pizzaQt = 1;
@@ -69,6 +69,51 @@ function closeModal() {
    }, 500);
 }
 
+// Adiciona eventos de clique para os botões de cancelar
 cs('.pizzaInfo--cancelButton, .pizzaInfo--cancelMobileButton').forEach((item) => {
    item.addEventListener('click', closeModal);
+});
+
+// Evento de clique para diminuir a quantidade de pizzas
+c('.pizzaInfo--qtmenos').addEventListener('click', () => {
+   if (pizzaQt > 1) {
+      pizzaQt--;
+      c('.pizzaInfo--qt').innerHTML = pizzaQt;
+   }
+});
+
+// Evento de clique para aumentar a quantidade de pizzas
+c('.pizzaInfo--qtmais').addEventListener('click', () => {
+   pizzaQt++;
+   c('.pizzaInfo--qt').innerHTML = pizzaQt;
+});
+
+// Adiciona eventos de clique para os tamanhos de pizza
+cs('.pizzaInfo--size').forEach((size, sizeIndex) => {
+    size.addEventListener('click', (e)=>{
+      c('.pizzaInfo--size.selected').classList.remove('selected');
+      size.classList.add('selected');
+    });
+});
+
+// Evento de clique para adicionar pizzas ao carrinho
+c('.pizzaInfo--addButton').addEventListener('click', () => {
+    let size = parseInt (c('.pizzaInfo--size.selected').getAttribute('data-key'));
+    
+    let indentifier = pizzaJson[pizzaKey].id+'@'+size;
+
+    let key = cart.findIndex((item)=>{
+      item.indentifier == indentifier;
+      if(key > -1){
+         cart[key].qt += pizzaQt;    
+      } else{
+         cart.push({
+            indentifier,
+            id:pizzaJson[pizzaKey].id,
+            size,
+            qt:pizzaQt
+      });
+      }
+    });
+    closeModal(); 
 });
